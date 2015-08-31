@@ -42,6 +42,10 @@ var eventCmd;
                 target = target[attr];
             }
             return {function: target, context: context};
+        },
+        isValidTarget: function(target){
+            if(target === "PingToAll") return true;
+            return eventCmd.endPoints.contains(target);
         }
     };
     
@@ -63,6 +67,10 @@ var eventCmd;
     // Send
     eventCmd.send = function(target, path, params, success, error){
         if(!params) params = [];
+        if(!HelperFuncs.isValidTarget(target)){
+            console.error("EventCmd target", target, "does not seem to exist");
+        }
+        
         var eventData = {
             target: target,
             path: path,
@@ -82,12 +90,6 @@ var eventCmd;
 
         var event = new CustomEvent('EventCmd', { detail: eventData });
         window.dispatchEvent(event);
-    };
-    
-    eventCmd.ping = function(sender){
-        eventCmd.endPoints.add(sender);
-        var responseEvent = new CustomEvent('EventCmdPong', { detail: eventCmd.extensionNamespace });
-        window.dispatchEvent(responseEvent);
     };
     
     // Send response functions
@@ -161,10 +163,16 @@ var eventCmd;
     });
     
     // Ping Pong to determine eventCmd endpoints
+    eventCmd.ping = function(sender){
+        eventCmd.endPoints.add(sender);
+        var responseEvent = new CustomEvent('EventCmdPong', { detail: eventCmd.extensionNamespace });
+        window.dispatchEvent(responseEvent);
+    };
+    
     window.addEventListener('EventCmdPong', function(e){
         if(!e.detail) return;
         eventCmd.endPoints.add(e.detail);
     });
     
-    eventCmd.send('', ['eventCmd', 'ping'], [eventCmd.extensionNamespace]);
+    eventCmd.send('PingToAll', ['eventCmd', 'ping'], [eventCmd.extensionNamespace]);
 })();
