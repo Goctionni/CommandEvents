@@ -16,3 +16,21 @@ eventCmd.send('UserTagger', ['Model', 'getUsertag'], ['Username'], function(user
 
 The arguments for `eventCmd.send()` are as follows:  
 `TargetExtension, Path(Array), Arguments(Array), Success(Callback), Error(Callback)`.
+
+Functions that are called can either return their value immediately or return a [Promise](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) object.
+
+If your function is passed a callback as an argument, you can call this function as follows:
+
+````javascript
+
+var successCallback = function(){
+    // Successful!
+    console.log(arguments);
+}
+var errorCallback = function(){
+    // Something went wrong!
+    console.error(arguments);
+}
+
+eventCmd.send('ExtName', ['Async', 'get'], [eventCmd.eventCmd.successCallback, eventCmd.errorCallback], successCallback, errorCallback);
+````
